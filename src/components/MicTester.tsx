@@ -26,7 +26,7 @@ export default function MicTester() {
   const stopBtnStyle: React.CSSProperties = { ...btnStyle, background: "#dc2626" };
 
   async function start() {
-    // 防抖
+
     if (isRec) return;
 
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -52,7 +52,6 @@ export default function MicTester() {
     };
     mrRef.current = mr;
 
-    // 设置开始时间并启动
     startTsRef.current = performance.now();
     setElapsed(0);
     setIsRec(true);
@@ -60,7 +59,7 @@ export default function MicTester() {
     mr.start();
 
     drawWave();
-    runTimer(); // 用 rAF 驱动计时，不卡顿更精准
+    runTimer();
   }
 
   function runTimer() {
@@ -68,7 +67,7 @@ export default function MicTester() {
       const ms = performance.now() - startTsRef.current;
       setElapsed(ms);
       if (ms >= 10_000) {
-        stop(); // 确保强制在 10 秒停止
+        stop();
         return;
       }
       rafTickRef.current = requestAnimationFrame(loop);
@@ -77,17 +76,14 @@ export default function MicTester() {
   }
 
   function stop() {
-    // 停止计时循环
     if (rafTickRef.current) {
       cancelAnimationFrame(rafTickRef.current);
       rafTickRef.current = null;
     }
-    // 停止绘图循环
     if (rafWaveRef.current) {
       cancelAnimationFrame(rafWaveRef.current);
       rafWaveRef.current = null;
     }
-    // 停止录音（只调用一次）
     if (mrRef.current && mrRef.current.state !== "inactive") {
       mrRef.current.stop();
     }
